@@ -8,10 +8,11 @@ import { broadcastToRelay, Connect, connectToRelay, ConnectURI } from '@nostr-co
 import { QRCodeSVG } from 'qrcode.react';
 import { getEventHash, getPublicKey, Event } from 'nostr-tools';
 
+const relay = 'wss://relay.damus.io';
 const secretKey = "5acff99d1ad3e1706360d213fd69203312d9b5e91a2d5f2e06100cc6f686e5b3";
 const connectURI = new ConnectURI({
   target: getPublicKey(secretKey),
-  relay: 'wss://nostr.vulpem.com',
+  relay,
   metadata: {
     name: 'Example',
     description: '🔉🔉🔉',
@@ -33,6 +34,7 @@ const App = () => {
       const connect = new Connect({
         secretKey,
         target,
+        relay
       });
       connect.events.on('connect', (pubkey: string) => {
         setPubkey(pubkey);
@@ -52,6 +54,7 @@ const App = () => {
     const connect = new Connect({
       secretKey,
       target: pubkey,
+      relay,
     });
     const pk = await connect.getPublicKey();
     setGetPublicKeyReply(pk);
@@ -64,6 +67,7 @@ const App = () => {
       const connect = new Connect({
         secretKey,
         target: pubkey,
+        relay,
       });
 
       let event: Event = {
@@ -94,6 +98,7 @@ const App = () => {
       const connect = new Connect({
         secretKey,
         target: pubkey,
+        relay,
       });
 
       const sig = await connect.rpc.call({
@@ -116,6 +121,7 @@ const App = () => {
       const connect = new Connect({
         secretKey,
         target: pubkey,
+        relay,
       });
 
       const sig = await connect.rpc.call({
@@ -145,6 +151,7 @@ const App = () => {
     const connect = new Connect({
       secretKey,
       target: pubkey,
+      relay,
     });
     await connect.disconnect();
     //cleanup
