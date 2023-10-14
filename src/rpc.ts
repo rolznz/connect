@@ -141,7 +141,7 @@ export class NostrRPC {
       if (!isValidRequest(payload)) return;
 
       // handle request
-      console.log("HANDLING REQUEST", payload.method)
+      console.log('HANDLING REQUEST', payload.method);
       if (typeof this[payload.method] !== 'function') Promise.resolve();
       const response = await this.handleRequest(payload, event);
 
@@ -165,7 +165,7 @@ export class NostrRPC {
   }
 
   connect(pubkey: string) {
-    console.log("RPC Connect", pubkey);
+    console.log('RPC Connect', pubkey);
     return Promise.resolve({});
   }
 
@@ -186,7 +186,7 @@ export class NostrRPC {
       } else {
         error = 'unknown error';
       }
-      error = "Failed to handle method " + method + ": " + error;
+      error = `Failed to handle method ${method}: ${error}`;
     }
     return {
       id,
