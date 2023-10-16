@@ -218,6 +218,15 @@ const App = () => {
             <button className='button is-info mt-3' onClick={copyToClipboard}>
               Copy to clipboard
             </button>
+            &nbsp;
+            <button className='button is-info mt-3' onClick={() => {
+              const pubkey = prompt("Please enter your pubkey in hex format");
+              if (pubkey) {
+                setPubkey(pubkey);
+              }
+            }}>
+              I've already connected
+            </button>
           </div>
         </div>
         }
