@@ -203,10 +203,10 @@ const App = () => {
         </div>
         }
         {!isConnected() && <div className='content has-text-centered'>
-          <div className='notification is-dark'>
-            <h2 className='title is-5'>Connect with Nostr</h2>
+          <div className='notification'>
+            <h2 className='is-5'>Connect with Nostr</h2>
 
-            <QRCodeSVG value={connectURI.toString()} />
+            <QRCodeSVG value={connectURI.toString()} size={256} />
             <input
               className='input is-info'
               type='text'
