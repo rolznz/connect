@@ -51,6 +51,7 @@ const App = () => {
         setPubkey('');
         setGetPublicKeyReply('');
         setSecretKey('');
+        window.location.reload();
       });
       await connect.init();
     })();
@@ -167,6 +168,7 @@ const App = () => {
     setPubkey('');
     setSecretKey('');
     setGetPublicKeyReply('');
+    window.location.reload();
   }
 
   const copyToClipboard = () => {
