@@ -6,27 +6,34 @@ import * as ReactDOM from 'react-dom';
 import { broadcastToRelay, Connect, connectToRelay, ConnectURI } from '@nostr-connect/connect';
 
 import { QRCodeSVG } from 'qrcode.react';
-import { getEventHash, getPublicKey, Event } from 'nostr-tools';
+import { getEventHash, getPublicKey, Event, generatePrivateKey } from 'nostr-tools';
 
-const relay = 'wss://relay.damus.io';
-const secretKey = "5acff99d1ad3e1706360d213fd69203312d9b5e91a2d5f2e06100cc6f686e5b3";
-const connectURI = new ConnectURI({
-  target: getPublicKey(secretKey),
-  relay,
-  metadata: {
-    name: 'Example',
-    description: '🔉🔉🔉',
-    url: 'https://example.com',
-    icons: ['https://example.com/icon.png'],
-  },
-});
+const relayUrl = 'wss://relay.damus.io';
 
 const App = () => {
   const [pubkey, setPubkey] = useStatePersist('@pubkey', '');
+  const [secretKey, setSecretKey] = useStatePersist('@secretKey', '');
   const [getPublicKeyReply, setGetPublicKeyReply] = useState('');
   const [eventWithSig, setEvent] = useState({});
   const [schnorrSig, setSchnorrSig] = useState('');
   const [delegationSig, setDelegateSig] = useState('');
+
+  React.useMemo(() => {
+    if (secretKey === '') {
+      setSecretKey(generatePrivateKey());
+    }
+  }, [secretKey])
+
+  const connectURI = React.useMemo(() => secretKey ? new ConnectURI({
+    target: getPublicKey(secretKey),
+    relay: relayUrl,
+    metadata: {
+      name: 'Nostr Connect Playground',
+      description: '🔉🔉🔉',
+      url: 'https://example.com',
+      icons: ['https://example.com/icon.png'],
+    },
+  }) : undefined, [secretKey])
 
   useEffect(() => {
     (async () => {
@@ -34,7 +41,7 @@ const App = () => {
       const connect = new Connect({
         secretKey,
         target,
-        relay
+        relay: relayUrl
       });
       connect.events.on('connect', (pubkey: string) => {
         setPubkey(pubkey);
@@ -43,10 +50,11 @@ const App = () => {
         setEvent({});
         setPubkey('');
         setGetPublicKeyReply('');
+        setSecretKey('');
       });
       await connect.init();
     })();
-  }, []);
+  }, [pubkey]);
 
 
   const getPub = async () => {
@@ -54,7 +62,7 @@ const App = () => {
     const connect = new Connect({
       secretKey,
       target: pubkey,
-      relay,
+      relay: relayUrl,
     });
     const pk = await connect.getPublicKey();
     setGetPublicKeyReply(pk);
@@ -67,7 +75,7 @@ const App = () => {
       const connect = new Connect({
         secretKey,
         target: pubkey,
-        relay,
+        relay: relayUrl,
       });
 
       let event: Event = {
@@ -81,7 +89,7 @@ const App = () => {
       };
       event.id = getEventHash(event)
       event.sig = (await connect.signEvent(event)).sig;
-      const relay = await connectToRelay('wss://relay.damus.io');
+      const relay = await connectToRelay(relayUrl);
       await broadcastToRelay(relay, event, true);
 
       setEvent(event);
@@ -98,7 +106,7 @@ const App = () => {
       const connect = new Connect({
         secretKey,
         target: pubkey,
-        relay,
+        relay: relayUrl,
       });
 
       const sig = await connect.rpc.call({
@@ -121,7 +129,7 @@ const App = () => {
       const connect = new Connect({
         secretKey,
         target: pubkey,
-        relay,
+        relay: relayUrl,
       });
 
       const sig = await connect.rpc.call({
@@ -151,20 +159,28 @@ const App = () => {
     const connect = new Connect({
       secretKey,
       target: pubkey,
-      relay,
+      relay: relayUrl,
     });
     await connect.disconnect();
     //cleanup
     setEvent({});
     setPubkey('');
+    setSecretKey('');
     setGetPublicKeyReply('');
   }
 
   const copyToClipboard = () => {
+    if (!connectURI) {
+      throw new Error("Not ready");
+    }
     navigator.clipboard.writeText(connectURI.toString()).then(undefined,
       function (err) {
         console.error('Async: Could not copy text: ', err);
       });
+  }
+
+  if (!secretKey || !connectURI) {
+    return <p>Loading...</p>;
   }
 
   return (
